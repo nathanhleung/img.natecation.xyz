@@ -64,6 +64,10 @@ export default async function handler(
   }
   const utcOffsetString = utcOffset != null ? ` (UTC${utcOffset > 0 ? '+' : ''}${utcOffset})` : '';
 
+  const height = !isNaN(Number(req.query.height)) ? Math.round(Number(req.query.height)) : 80;
+  const scale = height / 80;
+  const width = Math.round(scale * 550);
+
   const svg = await satori(
     <Box
       style={{
@@ -73,8 +77,7 @@ export default async function handler(
         justifyContent: 'center',
         flexDirection: 'column',
         fontFamily: 'Default',
-        fontSize: '24px',
-
+        fontSize: `${Math.round(scale * 24)}px`,
         background: req.query.background ? req.query.background.toString() : 'white',
       }}
     >
@@ -84,21 +87,21 @@ export default async function handler(
           {currentLocation}{utcOffsetString} &middot;
         </Text>
         <Text style={{
-          marginTop: '4px',
-          marginLeft: '6px',
+          marginTop: `${Math.round(scale * 4)}px`,
+          marginLeft: `${Math.round(scale * 6)}px`,
           color: 'rgb(32, 150, 255)',
           borderBottomColor: 'rgba(32, 150, 255, 0.2)',
-          borderBottomWidth: '5px',
+          borderBottomWidth: `${Math.round(scale * 5)}px`,
           borderBottomStyle: 'solid',
-          lineHeight: '28px',
+          lineHeight: `${Math.round(scale * 28)}px`,
         }}>
           natecation.com
         </Text>
       </Box>
     </Box>,
     {
-      width: 600,
-      height: 80,
+      width,
+      height,
       fonts: [
         { name: 'Default', data: Buffer.from(fontNormalData.map(i => Math.round((i - 1) / 2))), weight: 400 },
         {
