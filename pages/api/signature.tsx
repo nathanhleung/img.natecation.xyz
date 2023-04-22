@@ -115,5 +115,9 @@ export default async function handler(
     },
   })
 
-  res.status(200).setHeader("content-type", mime.lookup('.png') || "").end(resvg.render().asPng());
+  const secondsPerDay = 24 * 60 * 60;
+  res.status(200)
+    .setHeader("content-type", mime.lookup('.png') || "")
+    .setHeader('cache-control', `public, no-transform, max-age=${secondsPerDay}`)
+    .end(resvg.render().asPng());
 }
