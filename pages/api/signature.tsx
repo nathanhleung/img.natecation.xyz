@@ -74,7 +74,8 @@ export default async function handler(
         flexDirection: 'column',
         fontFamily: 'Default',
         fontSize: '24px',
-        background: req.query.background || 'white',
+
+        background: req.query.background ? req.query.background.toString() : 'white',
       }}
     >
       <Text style={{ fontWeight: 700 }}>Nathan H. Leung</Text>
@@ -114,5 +115,5 @@ export default async function handler(
     },
   })
 
-  res.status(200).setHeader("content-type", mime.lookup('.png')).end(resvg.render().asPng());
+  res.status(200).setHeader("content-type", mime.lookup('.png') || "").end(resvg.render().asPng());
 }
