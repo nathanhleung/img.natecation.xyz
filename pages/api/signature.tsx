@@ -1,18 +1,24 @@
 import { Resvg } from '@resvg/resvg-js';
 import axios from 'axios';
+import { isAfter } from 'date-fns';
+import { last, partition } from 'lodash';
 import mime from 'mime-types';
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next';
 import React from 'react';
 import satori from 'satori';
 
-import fontNormalData from '../../assets/font-normal.json';
 import fontBoldData from '../../assets/font-bold.json';
+import fontNormalData from '../../assets/font-normal.json';
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+const DEFAULT_TRIP = {
+  startDate: new Date("6/18/2023"),
+  city: "Los Angeles, CA"
+};
 
-async function getCurrentLocation() {
+async function getTrips() {
   const res = await axios.get("https://natecation.com/site-metadata.json");
-  return res.data.currentLocation;
+  return res.data.trips;
 }
 
 async function getLatLng(location: string) {
@@ -47,16 +53,19 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  let currentLocation = "Los Angeles, CA";
+  let trips = [DEFAULT_TRIP];
   try {
-    currentLocation = await getCurrentLocation();
+    trips = await getTrips();
   } catch { }
 
+  const currentDate = new Date();
+  const [_, pastTrips] = partition(trips, trip => isAfter(new Date(trip.startDate), currentDate));
+  const mostRecentPastTrip = last(pastTrips) ?? DEFAULT_TRIP;
 
   let utcOffset = null;
   if (req.query.timezone === "true") {
     try {
-      const { lat, lng } = await getLatLng(currentLocation);
+      const { lat, lng } = await getLatLng(mostRecentPastTrip.city);
       utcOffset = await getUtcOffset(lat, lng)
     } catch (e) {
       console.log(e);
@@ -84,7 +93,7 @@ export default async function handler(
       <Text style={{ fontWeight: 700 }}>Nathan H. Leung</Text>
       <Box style={{ alignItems: 'center' }}>
         <Text>
-          {currentLocation}{utcOffsetString} &middot;
+          {mostRecentPastTrip.city}{utcOffsetString} &middot;
         </Text>
         <Text style={{
           marginTop: `${Math.round(scale * 4)}px`,
