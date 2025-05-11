@@ -93,7 +93,7 @@ export default async function handler(
       <Text style={{ fontWeight: 700 }}>Nathan H. Leung</Text>
       <Box style={{ alignItems: 'center' }}>
         <Text>
-          {mostRecentPastTrip.city}{utcOffsetString} &middot;
+          {mostRecentPastTrip.city.replace(/[^A-Za-z'_\-, ]/g, '')}{utcOffsetString} &middot;
         </Text>
         <Text style={{
           marginTop: `${Math.round(scale * 4)}px`,
